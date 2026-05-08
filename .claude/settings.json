@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "PowerShell(Get-ChildItem \"C:\\\\Program Files\\\\nodejs\" -ErrorAction SilentlyContinue; Get-ChildItem \"$env:APPDATA\\\\npm\" -ErrorAction SilentlyContinue | Select-Object -First 5; where.exe node 2>$null; where.exe npm 2>$null)",
+      "PowerShell($env:PATH -split \";\" | ForEach-Object { if \\(Test-Path \"$_\\\\node.exe\"\\) { $_ } })",
+      "Read(//c/Users/**)",
+      "PowerShell(Get-ChildItem \"C:\\\\\" -Directory -ErrorAction SilentlyContinue | Select-Object Name; Get-ChildItem \"$env:LOCALAPPDATA\\\\Programs\" -Directory -ErrorAction SilentlyContinue | Select-Object Name | Select-Object -First 20)",
+      "Read(//c//**)",
+      "PowerShell(Get-ChildItem \"C:\\\\Program Files\" -Name -ErrorAction SilentlyContinue | Where-Object { $_ -match \"node|nvm\" -or $_ -match \"Node\" })",
+      "PowerShell(Get-ChildItem \"$env:APPDATA\" -Name -ErrorAction SilentlyContinue | Where-Object { $_ -match \"node|npm|nvm\" }; Get-ChildItem \"$env:LOCALAPPDATA\" -Name -ErrorAction SilentlyContinue | Where-Object { $_ -match \"node|npm|nvm\" })",
+      "PowerShell(Get-ChildItem \"$env:LOCALAPPDATA\\\\claude-cli-nodejs\" -ErrorAction SilentlyContinue | Select-Object Name; Get-ChildItem \"$env:LOCALAPPDATA\\\\claude-cli-nodejs\" -Recurse -Filter \"node.exe\" -ErrorAction SilentlyContinue | Select-Object FullName)",
+      "PowerShell(Get-ChildItem \"$env:APPDATA\\\\claude-cli-nodejs\" -ErrorAction SilentlyContinue | Select-Object Name, FullName)",
+      "PowerShell($dirs = @\\(\"$env:LOCALAPPDATA\\\\Programs\\\\nodejs\", \"$env:LOCALAPPDATA\\\\nvm\", \"C:\\\\nodejs\", \"C:\\\\Program Files\\\\nodejs\", \"C:\\\\Program Files \\(x86\\)\\\\nodejs\", \"$env:LOCALAPPDATA\\\\pnpm\"\\); foreach \\($d in $dirs\\) { if \\(Test-Path $d\\) { Write-Output \"FOUND: $d\" } })",
+      "PowerShell(Get-ChildItem \"$env:LOCALAPPDATA\" -Name | Select-Object -First 30)",
+      "PowerShell(Get-ChildItem \"$env:LOCALAPPDATA\\\\claude-cli-nodejs\" -Recurse -Name -ErrorAction SilentlyContinue | Select-Object -First 20)",
+      "PowerShell(Get-ChildItem \"$env:LOCALAPPDATA\\\\Apps\" -Name -ErrorAction SilentlyContinue; Get-ChildItem \"C:\\\\Program Files \\(x86\\)\" -Name -ErrorAction SilentlyContinue | Where-Object { $_ -match \"node|bun\" })",
+      "Bash(c:\\\\Sofiia\\\\Web\\\\backend\\\\venv\\\\Scripts\\\\python.exe -c \"import uvicorn, fastapi, alembic, sqlalchemy; print\\('OK'\\)\")",
+      "PowerShell(& \"c:\\\\Sofiia\\\\Web\\\\backend\\\\venv\\\\Scripts\\\\python.exe\" -c \"import uvicorn, fastapi, alembic, sqlalchemy; print\\('OK'\\)\" 2>&1)",
+      "PowerShell(node --version 2>&1)",
+      "PowerShell(npm --version 2>&1)"
+    ]
+  }
+}
