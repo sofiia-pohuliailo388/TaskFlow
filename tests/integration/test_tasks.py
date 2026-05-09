@@ -13,7 +13,7 @@ async def _create_task(client: AsyncClient, title: str = "My Task") -> dict:
 async def test_create_task(auth_client: AsyncClient) -> None:
     task = await _create_task(auth_client)
     assert task["title"] == "My Task"
-    assert task["status"] == "pending"
+    assert task["status"] == "to_do"
 
 
 async def test_list_tasks(auth_client: AsyncClient) -> None:
@@ -56,7 +56,7 @@ async def test_status_transition_valid(auth_client: AsyncClient) -> None:
 
 async def test_status_transition_invalid(auth_client: AsyncClient) -> None:
     task = await _create_task(auth_client)
-    # pending → done is not allowed directly
+    # to_do → done is not allowed directly
     resp = await auth_client.patch(f"/api/tasks/{task['id']}/status", json={"status": "done"})
     assert resp.status_code == 400
     assert "Cannot transition" in resp.json()["detail"]
@@ -67,33 +67,29 @@ async def test_done_task_cannot_change_status(auth_client: AsyncClient) -> None:
     await auth_client.patch(f"/api/tasks/{task['id']}/status", json={"status": "in_progress"})
     await auth_client.patch(f"/api/tasks/{task['id']}/status", json={"status": "done"})
 
-    resp = await auth_client.patch(f"/api/tasks/{task['id']}/status", json={"status": "pending"})
+    resp = await auth_client.patch(f"/api/tasks/{task['id']}/status", json={"status": "to_do"})
     assert resp.status_code == 400
 
 
 async def test_other_user_cannot_access_task(client: AsyncClient) -> None:
-    # Register user A and create a task
     await client.post("/api/auth/register", json={
         "email": "usera@example.com", "password": "password123", "name": "User A"
     })
     login_a = await client.post("/api/auth/login", json={
         "email": "usera@example.com", "password": "password123"
     })
-    token_a = login_a.json()["access_token"]
-    client.headers["Authorization"] = f"Bearer {token_a}"
+    client.headers["Authorization"] = f"Bearer {login_a.json()['access_token']}"
 
     resp = await client.post("/api/tasks", json={"title": "Private Task"})
     task_id = resp.json()["id"]
 
-    # Register user B
     await client.post("/api/auth/register", json={
         "email": "userb@example.com", "password": "password123", "name": "User B"
     })
     login_b = await client.post("/api/auth/login", json={
         "email": "userb@example.com", "password": "password123"
     })
-    token_b = login_b.json()["access_token"]
-    client.headers["Authorization"] = f"Bearer {token_b}"
+    client.headers["Authorization"] = f"Bearer {login_b.json()['access_token']}"
 
     resp = await client.get(f"/api/tasks/{task_id}")
     assert resp.status_code == 403
@@ -101,4 +97,4 @@ async def test_other_user_cannot_access_task(client: AsyncClient) -> None:
 
 async def test_unauthenticated_access_returns_401(client: AsyncClient) -> None:
     resp = await client.get("/api/tasks")
-    assert resp.status_code == 403  # HTTPBearer returns 403 when no token
+    assert resp.status_code == 401

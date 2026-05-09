@@ -1,5 +1,5 @@
 import asyncio
-from typing import AsyncGenerator, Generator
+from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
@@ -49,7 +49,7 @@ async def client() -> AsyncGenerator[AsyncClient, None]:
 
 @pytest_asyncio.fixture
 async def auth_client(client: AsyncClient) -> AsyncClient:
-    """Return a client that is already logged in as a test user."""
+    """Return a client already logged in as a test user."""
     await client.post("/api/auth/register", json={
         "email": "test@example.com",
         "password": "password123",

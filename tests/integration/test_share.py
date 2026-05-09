@@ -39,7 +39,6 @@ async def test_view_shared_task_public(client: AsyncClient) -> None:
 
     token = share_resp.json()["token"]
 
-    # Public access — clear auth header
     client.headers.pop("Authorization", None)
     resp = await client.get(f"/api/share/{token}")
     assert resp.status_code == 200
@@ -65,7 +64,6 @@ async def test_share_nonexistent_task_returns_404(client: AsyncClient) -> None:
 
 
 async def test_share_another_users_task_returns_403(client: AsyncClient) -> None:
-    # User A creates task
     await client.post("/api/auth/register", json={
         "email": "own403@example.com", "password": "password123", "name": "Owner"
     })
@@ -74,7 +72,6 @@ async def test_share_another_users_task_returns_403(client: AsyncClient) -> None
     task_resp = await client.post("/api/tasks", json={"title": "A Task"})
     task_id = task_resp.json()["id"]
 
-    # User B tries to share User A's task
     await client.post("/api/auth/register", json={
         "email": "other403@example.com", "password": "password123", "name": "Other"
     })
