@@ -5,15 +5,16 @@ from sqlalchemy import select
 
 from app.api.deps import get_current_user
 from app.db.base import get_db
-from app.db.models import Task, TaskStatus, User
+from app.db.models import Task, TaskStatus, Priority, User
 from app.schemas.task import TaskCreate, TaskOut, TaskUpdate, TaskStatusUpdate
+from sqlalchemy import asc
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 # Valid forward transitions only
 _ALLOWED_TRANSITIONS: dict[TaskStatus, set[TaskStatus]] = {
-    TaskStatus.pending: {TaskStatus.in_progress},
-    TaskStatus.in_progress: {TaskStatus.done, TaskStatus.pending},
+    TaskStatus.to_do: {TaskStatus.in_progress},
+    TaskStatus.in_progress: {TaskStatus.done, TaskStatus.to_do},
     TaskStatus.done: set(),
 }
 
@@ -49,6 +50,8 @@ async def create_task(
         user_id=current_user.id,
         title=payload.title,
         description=payload.description,
+        priority=payload.priority,
+        start_date=payload.start_date,
         due_date=payload.due_date,
     )
     db.add(task)
