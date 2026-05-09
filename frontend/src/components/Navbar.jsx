@@ -33,6 +33,8 @@ export function Navbar() {
         </button>
 
         <div className={`${styles.nav} ${open ? styles.open : ''}`}>
+          <Link to="/tasks" className={styles.navLink}>List</Link>
+          <Link to="/kanban" className={styles.navLink}>Kanban</Link>
           <span className={styles.userInfo}>{user.name ?? user.email}</span>
           <button className={styles.logoutBtn} onClick={handleLogout}>
             Sign out

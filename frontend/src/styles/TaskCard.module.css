@@ -137,9 +137,9 @@
   opacity: 0.75;
 }
 
-.statusBtn.pending {
-  color: var(--color-pending);
-  border-color: var(--color-pending);
+.statusBtn.to_do {
+  color: var(--color-to-do);
+  border-color: var(--color-to-do);
 }
 
 .statusBtn.in_progress {
@@ -152,8 +152,8 @@
   border-color: var(--color-done);
 }
 
-.statusBtn.active.pending {
-  background: var(--color-pending-bg);
+.statusBtn.active.to_do {
+  background: var(--color-to-do-bg);
 }
 
 .statusBtn.active.in_progress {

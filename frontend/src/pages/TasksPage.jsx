@@ -4,10 +4,10 @@ import { TaskModal } from '../components/TaskModal'
 import { ShareModal } from '../components/ShareModal'
 import { useTasks } from '../hooks/useTasks'
 
-const FILTERS = ['all', 'pending', 'in_progress', 'done']
+const FILTERS = ['all', 'to_do', 'in_progress', 'done']
 const FILTER_LABELS = {
   all: 'All',
-  pending: 'Pending',
+  to_do: 'To Do',
   in_progress: 'In Progress',
   done: 'Done',
 }
@@ -16,7 +16,7 @@ function EmptyState({ filter }) {
   const msg =
     filter === 'all'
       ? "You don't have any tasks yet."
-      : `No ${FILTER_LABELS[filter].toLowerCase()} tasks.`
+      : `No "${FILTER_LABELS[filter]}" tasks.`
 
   return (
     <div className="empty-state">

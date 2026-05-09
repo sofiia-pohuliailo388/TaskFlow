@@ -1,28 +1,23 @@
 import { useState } from 'react'
 import PropTypes from 'prop-types'
-import { StatusBadge } from './StatusBadge'
+import { StatusBadge, PriorityBadge } from './StatusBadge'
 import styles from '../styles/TaskCard.module.css'
 
 const STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pending' },
+  { value: 'to_do', label: 'To Do' },
   { value: 'in_progress', label: 'In Progress' },
   { value: 'done', label: 'Done' },
 ]
 
-// Forward-only transitions (mirrors backend logic)
 const ALLOWED = {
-  pending: ['in_progress'],
-  in_progress: ['pending', 'done'],
+  to_do: ['in_progress'],
+  in_progress: ['to_do', 'done'],
   done: [],
 }
 
 function formatDate(iso) {
   if (!iso) return null
-  return new Date(iso).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 function isOverdue(iso, status) {
@@ -56,12 +51,8 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange, onShare }) {
           </span>
         </div>
         <div className={styles.actions}>
-          <button className={styles.actionBtn} onClick={() => onShare(task)}>
-            Share
-          </button>
-          <button className={styles.actionBtn} onClick={() => onEdit(task)}>
-            Edit
-          </button>
+          <button className={styles.actionBtn} onClick={() => onShare(task)}>Share</button>
+          <button className={styles.actionBtn} onClick={() => onEdit(task)}>Edit</button>
           <button
             className={`${styles.actionBtn} ${styles.delete}`}
             onClick={() => setConfirming(true)}
@@ -74,19 +65,26 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange, onShare }) {
       {task.description && <p className={styles.description}>{task.description}</p>}
 
       <div className={styles.meta}>
-        {task.due_date && (
-          <span className={`${styles.dueDate} ${overdue ? styles.overdue : ''}`}>
-            {overdue ? '⚠ ' : ''}Due {formatDate(task.due_date)}
-          </span>
-        )}
+        <PriorityBadge priority={task.priority ?? 'medium'} />
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+          {task.start_date && (
+            <span className={styles.dueDate}>
+              Start: {formatDate(task.start_date)}
+            </span>
+          )}
+          {task.due_date && (
+            <span className={`${styles.dueDate} ${overdue ? styles.overdue : ''}`}>
+              {overdue ? '⚠ ' : ''}Due: {formatDate(task.due_date)}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className={styles.statusRow}>
         <span className={styles.statusLabel}>Move to:</span>
         {STATUS_OPTIONS.map((opt) => {
           const allowed = ALLOWED[task.status]?.includes(opt.value)
-          const isCurrent = task.status === opt.value
-          if (isCurrent) return null
+          if (task.status === opt.value) return null
           return (
             <button
               key={opt.value}
@@ -106,18 +104,10 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange, onShare }) {
       {confirming && (
         <div className={styles.confirmDelete}>
           <span>Delete &ldquo;{task.title}&rdquo;?</span>
-          <button
-            className={styles.confirmNo}
-            onClick={() => setConfirming(false)}
-          >
-            Cancel
-          </button>
+          <button className={styles.confirmNo} onClick={() => setConfirming(false)}>Cancel</button>
           <button
             className={styles.confirmYes}
-            onClick={() => {
-              setConfirming(false)
-              onDelete(task.id)
-            }}
+            onClick={() => { setConfirming(false); onDelete(task.id) }}
           >
             Delete
           </button>
@@ -132,7 +122,9 @@ TaskCard.propTypes = {
     id: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     description: PropTypes.string,
-    status: PropTypes.oneOf(['pending', 'in_progress', 'done']).isRequired,
+    status: PropTypes.oneOf(['to_do', 'in_progress', 'done']).isRequired,
+    priority: PropTypes.oneOf(['high', 'medium', 'low']),
+    start_date: PropTypes.string,
     due_date: PropTypes.string,
   }).isRequired,
   onEdit: PropTypes.func.isRequired,

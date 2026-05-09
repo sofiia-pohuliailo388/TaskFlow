@@ -5,6 +5,7 @@ import { Navbar } from './components/Navbar'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { TasksPage } from './pages/TasksPage'
+import { KanbanPage } from './pages/KanbanPage'
 import { SharePage } from './pages/SharePage'
 
 export function App() {
@@ -20,6 +21,14 @@ export function App() {
             element={
               <ProtectedRoute>
                 <TasksPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/kanban"
+            element={
+              <ProtectedRoute>
+                <KanbanPage />
               </ProtectedRoute>
             }
           />
