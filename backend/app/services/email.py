@@ -21,23 +21,21 @@ async def send_share_email(recipient: str, task_title: str, token: str, owner_na
     html = _build_html(owner_name, task_title, link)
 
     try:
-        api_key = settings.MAILJET_API_KEY.strip()
-        secret_key = settings.MAILJET_SECRET_KEY.strip()
-        logger.info("Mailjet key lengths: api=%d secret=%d", len(api_key), len(secret_key))
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.post(
-                "https://api.mailjet.com/v3.1/send",
-                auth=(api_key, secret_key),
+                "https://api.resend.com/emails",
+                headers={
+                    "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+                    "Content-Type": "application/json",
+                },
                 json={
-                    "Messages": [{
-                        "From": {"Email": settings.MAIL_FROM, "Name": "TaskFlow"},
-                        "To": [{"Email": recipient}],
-                        "Subject": subject,
-                        "HTMLPart": html,
-                    }]
+                    "from": f"TaskFlow <{settings.MAIL_FROM or 'onboarding@resend.dev'}>",
+                    "to": [recipient],
+                    "subject": subject,
+                    "html": html,
                 },
             )
             response.raise_for_status()
-            logger.info("Mailjet email sent to %s, status %s", recipient, response.status_code)
+            logger.info("Resend email sent to %s, status %s", recipient, response.status_code)
     except Exception as e:
         logger.error("Email send failed: %s", e, exc_info=True)
