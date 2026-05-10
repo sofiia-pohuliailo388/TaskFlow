@@ -34,7 +34,8 @@ class Settings(BaseSettings):
     SMTP_USER: str = ""
     SMTP_PASSWORD: str = ""
 
-    BREVO_API_KEY: str = ""
+    MAILJET_API_KEY: str = ""
+    MAILJET_SECRET_KEY: str = ""
 
     CLOUDINARY_CLOUD_NAME: str = ""
     CLOUDINARY_API_KEY: str = ""

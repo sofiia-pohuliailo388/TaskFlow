@@ -23,19 +23,18 @@ async def send_share_email(recipient: str, task_title: str, token: str, owner_na
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.post(
-                "https://api.brevo.com/v3/smtp/email",
-                headers={
-                    "api-key": settings.BREVO_API_KEY,
-                    "Content-Type": "application/json",
-                },
+                "https://api.mailjet.com/v3.1/send",
+                auth=(settings.MAILJET_API_KEY, settings.MAILJET_SECRET_KEY),
                 json={
-                    "sender": {"name": "TaskFlow", "email": settings.MAIL_FROM},
-                    "to": [{"email": recipient}],
-                    "subject": subject,
-                    "htmlContent": html,
+                    "Messages": [{
+                        "From": {"Email": settings.MAIL_FROM, "Name": "TaskFlow"},
+                        "To": [{"Email": recipient}],
+                        "Subject": subject,
+                        "HTMLPart": html,
+                    }]
                 },
             )
             response.raise_for_status()
-            logger.info("Brevo email sent to %s, status %s", recipient, response.status_code)
+            logger.info("Mailjet email sent to %s, status %s", recipient, response.status_code)
     except Exception as e:
         logger.error("Email send failed: %s", e, exc_info=True)
