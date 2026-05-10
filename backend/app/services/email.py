@@ -21,10 +21,13 @@ async def send_share_email(recipient: str, task_title: str, token: str, owner_na
     html = _build_html(owner_name, task_title, link)
 
     try:
+        api_key = settings.MAILJET_API_KEY.strip()
+        secret_key = settings.MAILJET_SECRET_KEY.strip()
+        logger.info("Mailjet key lengths: api=%d secret=%d", len(api_key), len(secret_key))
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.post(
                 "https://api.mailjet.com/v3.1/send",
-                auth=(settings.MAILJET_API_KEY, settings.MAILJET_SECRET_KEY),
+                auth=(api_key, secret_key),
                 json={
                     "Messages": [{
                         "From": {"Email": settings.MAIL_FROM, "Name": "TaskFlow"},
