@@ -14,3 +14,8 @@ export async function apiRefresh(refreshToken) {
   const { data } = await api.post('/api/auth/refresh', { refresh_token: refreshToken })
   return data
 }
+
+export async function apiGoogleAuth(idToken) {
+  const { data } = await api.post('/api/auth/google', { token: idToken })
+  return data
+}

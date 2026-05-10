@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.routes import auth, tasks, share, subtasks, attachments
+from app.api.routes import auth, tasks, share, subtasks, attachments, upload
 from app.core.config import settings
 
 app = FastAPI(
@@ -26,6 +26,7 @@ app.include_router(tasks.router, prefix="/api")
 app.include_router(share.router, prefix="/api")
 app.include_router(subtasks.router, prefix="/api")
 app.include_router(attachments.router, prefix="/api")
+app.include_router(upload.router, prefix="/api")
 
 
 @app.exception_handler(Exception)

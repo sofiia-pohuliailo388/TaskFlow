@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../hooks/useAuth'
 
 export function LoginPage() {
-  const { login } = useAuth()
+  const { login, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from?.pathname ?? '/tasks'
@@ -36,6 +37,19 @@ export function LoginPage() {
       navigate(from, { replace: true })
     } catch (err) {
       setApiError(err?.response?.data?.detail ?? 'Login failed. Check your credentials.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleGoogleSuccess(credentialResponse) {
+    setLoading(true)
+    setApiError(null)
+    try {
+      await loginWithGoogle(credentialResponse.credential)
+      navigate(from, { replace: true })
+    } catch {
+      setApiError('Google sign-in failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -88,6 +102,18 @@ export function LoginPage() {
             {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
+
+        <div className="auth-divider"><span>or</span></div>
+
+        <div className="google-btn-wrapper">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setApiError('Google sign-in failed. Please try again.')}
+            width="340"
+            theme="outline"
+            shape="rectangular"
+          />
+        </div>
 
         <p className="auth-footer">
           Don&rsquo;t have an account?{' '}

@@ -10,6 +10,7 @@
     "start": "serve -s dist -p $PORT"
   },
   "dependencies": {
+    "@react-oauth/google": "^0.13.5",
     "axios": "^1.7.2",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
@@ -18,7 +19,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
-    "vite": "^5.2.13",
-    "serve": "^14.2.3"
+    "serve": "^14.2.3",
+    "vite": "^5.2.13"
   }
 }

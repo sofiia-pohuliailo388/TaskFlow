@@ -9,18 +9,21 @@ A full-stack task management app with a list view, Kanban board, subtasks, and l
 | Backend | FastAPI · SQLAlchemy (async) · PostgreSQL · Alembic · JWT auth |
 | Frontend | React 18 · Vite · React Router · CSS Modules |
 | Email | Resend API |
+| File storage | Cloudinary |
+| Auth | JWT + Google OAuth 2.0 |
 | Deploy | Railway (backend + DB) |
 | Containers | Docker · Docker Compose |
 
 ## Features
 
-- **Auth** — register, login, JWT access + refresh tokens
+- **Auth** — register, login, Google OAuth; JWT access + refresh tokens
 - **Tasks** — create, edit, delete; priority (High / Medium / Low); status (To Do → In Progress → Done)
 - **Dates** — start date + end date per task; overdue highlighting
 - **Subtasks** — add / complete / delete subtasks within a task
-- **Attachments** — attach links (Google Drive, images, any URL) to tasks and subtasks; image preview inline
+- **Attachments** — attach links or upload files (Cloudinary) to tasks and subtasks; image preview inline
 - **Sharing** — share a task via email (generates a public read-only link)
 - **Views** — List view with filters + Kanban board with drag-and-drop
+- **AI** — estimate task time with Gemini AI
 
 ## Getting Started
 
@@ -70,6 +73,11 @@ RESEND_API_KEY=re_...
 MAIL_FROM=noreply@yourdomain.com
 FRONTEND_URL=http://localhost:3000
 CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+GOOGLE_CLIENT_ID=your-google-client-id
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+GEMINI_API_KEY=your-gemini-key
 ```
 
 ## Running Tests
@@ -99,7 +107,31 @@ tests/
     test_auth.py            # register, login, refresh
     test_tasks.py           # CRUD, status transitions, access control
     test_share.py           # share tokens, public access
+  e2e/
+    user_stories.md         # US-01–US-10 scenarios for Puppeteer MCP
+    specs/                  # Playwright specs (auth, tasks, kanban)
 ```
+
+### E2E / User Story tests (Puppeteer MCP)
+
+These run interactively via Claude Code + Puppeteer MCP with both servers running:
+
+```bash
+# 1. Install Puppeteer MCP (once)
+claude mcp add --scope user puppeteer -- npx -y @modelcontextprotocol/server-puppeteer
+
+# 2. Start the app
+cd backend && uvicorn app.main:app --reload   # terminal 1
+cd frontend && npm run dev                     # terminal 2
+
+# 3. Open Claude Code CLI from the project root
+claude
+
+# 4. Ask Claude to run the tests
+# "Run the e2e user story tests from tests/e2e/user_stories.md, US-01 through US-10"
+```
+
+All 10 user stories pass (registration, login/logout, task CRUD, status flow, filters, subtasks, attachments, Kanban drag-and-drop, delete).
 
 ## API Overview
 

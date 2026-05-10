@@ -79,7 +79,7 @@ function KanbanColumn({ column, tasks, onDrop, onDragOver, onDragLeave, dragOver
 }
 
 export function KanbanPage() {
-  const { tasks, loading, error, updateStatus, createTask, updateTask } = useTasks()
+  const { tasks, loading, error, updateStatus, createTask, updateTask, fetchTasks } = useTasks()
   const [dragOverCol, setDragOverCol] = useState(null)
   const [editTask, setEditTask] = useState(null)
   const [showCreate, setShowCreate] = useState(false)
@@ -118,9 +118,9 @@ export function KanbanPage() {
 
   async function handleSave(payload) {
     if (editTask) {
-      await updateTask(editTask.id, payload)
+      return await updateTask(editTask.id, payload)
     } else {
-      await createTask(payload)
+      return await createTask(payload)
     }
   }
 
@@ -163,7 +163,7 @@ export function KanbanPage() {
         <TaskModal
           task={editTask}
           onSave={handleSave}
-          onClose={() => { setShowCreate(false); setEditTask(null) }}
+          onClose={() => { setShowCreate(false); setEditTask(null); fetchTasks() }}
         />
       )}
     </div>

@@ -54,6 +54,119 @@
   overflow: hidden;
 }
 
+.indicators {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.indicatorRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.775rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition), background var(--transition);
+}
+
+.indicator:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.indicatorActive {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.indicatorArrow {
+  font-size: 0.6rem;
+  opacity: 0.7;
+}
+
+.expandPanel {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.expandRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+}
+
+.expandHint {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.expandText {
+  color: var(--color-text-secondary);
+}
+
+.checkBtn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border);
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: transparent;
+  transition: border-color var(--transition), background var(--transition), color var(--transition);
+}
+
+.checkBtn:hover {
+  border-color: var(--color-primary);
+}
+
+.checkBtnDone {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.doneText {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+
+.attLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: 0.8125rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attLink:hover {
+  text-decoration: underline;
+}
+
 .meta {
   display: flex;
   align-items: center;

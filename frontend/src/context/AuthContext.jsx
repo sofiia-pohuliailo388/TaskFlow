@@ -1,6 +1,6 @@
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
-import { apiLogin, apiRegister } from '../api/auth'
+import { apiLogin, apiRegister, apiGoogleAuth } from '../api/auth'
 
 export const AuthContext = createContext(null)
 
@@ -28,9 +28,7 @@ export function AuthProvider({ children }) {
     const tokens = await apiLogin(email, password)
     localStorage.setItem('access_token', tokens.access_token)
     localStorage.setItem('refresh_token', tokens.refresh_token)
-    // Decode name/email from the register payload stored in localStorage
-    // The login endpoint doesn't return user info, so we re-use the email as display name
-    const userData = { email }
+    const userData = { email: tokens.email, name: tokens.name }
     localStorage.setItem('user', JSON.stringify(userData))
     setUser(userData)
     return tokens
@@ -48,6 +46,19 @@ export function AuthProvider({ children }) {
     return newUser
   }, [])
 
+  const loginWithGoogle = useCallback(async (idToken) => {
+    const tokens = await apiGoogleAuth(idToken)
+    localStorage.setItem('access_token', tokens.access_token)
+    localStorage.setItem('refresh_token', tokens.refresh_token)
+    // Decode name from JWT payload (sub = user_id); we don't have email here,
+    // so store a placeholder — the backend verified it already
+    const payload = JSON.parse(atob(tokens.access_token.split('.')[1]))
+    const userData = { id: payload.sub }
+    localStorage.setItem('user', JSON.stringify(userData))
+    setUser(userData)
+    return tokens
+  }, [])
+
   const logout = useCallback(() => {
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
@@ -56,8 +67,8 @@ export function AuthProvider({ children }) {
   }, [])
 
   const value = useMemo(
-    () => ({ user, login, register, logout, isAuthenticated: !!user }),
-    [user, login, register, logout]
+    () => ({ user, login, loginWithGoogle, register, logout, isAuthenticated: !!user }),
+    [user, login, loginWithGoogle, register, logout]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

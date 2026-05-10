@@ -3,6 +3,7 @@ import { TaskCard } from '../components/TaskCard'
 import { TaskModal } from '../components/TaskModal'
 import { ShareModal } from '../components/ShareModal'
 import { useTasks } from '../hooks/useTasks'
+import { apiGenerateSummary } from '../api/tasks'
 
 const FILTERS = ['all', 'to_do', 'in_progress', 'done']
 const FILTER_LABELS = {
@@ -47,12 +48,33 @@ function Toast({ message, type, onDismiss }) {
 }
 
 export function TasksPage() {
-  const { tasks, loading, error, createTask, updateTask, updateStatus, deleteTask } = useTasks()
+  const { tasks, loading, error, fetchTasks, createTask, updateTask, updateStatus, deleteTask } = useTasks()
   const [filter, setFilter] = useState('all')
   const [showCreate, setShowCreate] = useState(false)
   const [editTask, setEditTask] = useState(null)
   const [shareTask, setShareTask] = useState(null)
   const [toast, setToast] = useState(null)
+  const [summaryOpen, setSummaryOpen] = useState(false)
+  const [summaryPeriod, setSummaryPeriod] = useState('week')
+  const [summaryText, setSummaryText] = useState(null)
+  const [summaryLoading, setSummaryLoading] = useState(false)
+  const [summaryError, setSummaryError] = useState(null)
+
+  async function handleGenerateSummary(period) {
+    setSummaryPeriod(period)
+    setSummaryLoading(true)
+    setSummaryText(null)
+    setSummaryError(null)
+    setSummaryOpen(true)
+    try {
+      const text = await apiGenerateSummary(period)
+      setSummaryText(text)
+    } catch {
+      setSummaryError('Failed to generate summary. Try again.')
+    } finally {
+      setSummaryLoading(false)
+    }
+  }
 
   function showToast(message, type = 'error') {
     setToast({ message, type })
@@ -62,9 +84,9 @@ export function TasksPage() {
 
   async function handleSave(payload) {
     if (editTask) {
-      await updateTask(editTask.id, payload)
+      return await updateTask(editTask.id, payload)
     } else {
-      await createTask(payload)
+      return await createTask(payload)
     }
   }
 
@@ -103,10 +125,43 @@ export function TasksPage() {
           }}
         >
           <h1 style={{ fontSize: '1.375rem', fontWeight: 700 }}>My Tasks</h1>
-          <button className="btn btn-primary" onClick={() => setShowCreate(true)}>
-            + New task
-          </button>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button className="btn btn-ghost" onClick={() => handleGenerateSummary('day')}>✨ Today</button>
+            <button className="btn btn-ghost" onClick={() => handleGenerateSummary('week')}>✨ This week</button>
+            <button className="btn btn-primary" onClick={() => setShowCreate(true)}>+ New task</button>
+          </div>
         </div>
+
+        {/* AI Summary panel */}
+        {summaryOpen && (
+          <div style={{
+            marginBottom: 20,
+            padding: '16px 20px',
+            borderRadius: 'var(--radius)',
+            border: '1.5px solid var(--color-primary)',
+            background: 'var(--color-primary-light)',
+            position: 'relative',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <span style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--color-primary)' }}>
+                ✨ AI Summary — {summaryPeriod === 'day' ? 'Today' : 'This week'}
+              </span>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button
+                  style={{ fontSize: '0.8125rem', padding: '4px 10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-primary)', background: 'transparent', color: 'var(--color-primary)', cursor: 'pointer' }}
+                  onClick={() => handleGenerateSummary(summaryPeriod === 'day' ? 'week' : 'day')}
+                  disabled={summaryLoading}
+                >
+                  Switch to {summaryPeriod === 'day' ? 'week' : 'today'}
+                </button>
+                <button onClick={() => setSummaryOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', color: 'var(--color-text-muted)' }}>✕</button>
+              </div>
+            </div>
+            {summaryLoading && <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>Generating summary…</p>}
+            {summaryError && <p className="error-banner" style={{ margin: 0 }}>{summaryError}</p>}
+            {summaryText && <p style={{ margin: 0, fontSize: '0.9375rem', lineHeight: 1.6, color: 'var(--color-text)' }}>{summaryText}</p>}
+          </div>
+        )}
 
         {/* Filter tabs */}
         <div
@@ -193,6 +248,7 @@ export function TasksPage() {
           onClose={() => {
             setShowCreate(false)
             setEditTask(null)
+            fetchTasks()
           }}
         />
       )}

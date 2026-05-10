@@ -35,5 +35,7 @@ class TaskOut(BaseModel):
     due_date: Optional[datetime]
     created_at: datetime
     updated_at: datetime
+    subtask_count: int = 0
+    attachment_count: int = 0
 
     model_config = {"from_attributes": True}
