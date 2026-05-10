@@ -1,10 +1,6 @@
-import asyncio
 import logging
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 
-import resend
+import httpx
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -19,37 +15,27 @@ def _build_html(owner_name: str, task_title: str, link: str) -> str:
     )
 
 
-def _send_via_smtp(recipient: str, subject: str, html: str) -> None:
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = settings.MAIL_FROM or settings.SMTP_USER
-    msg["To"] = recipient
-    msg.attach(MIMEText(html, "html"))
-    with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
-        server.starttls()
-        server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-        server.sendmail(msg["From"], [recipient], msg.as_string())
-
-
 async def send_share_email(recipient: str, task_title: str, token: str, owner_name: str) -> None:
     link = f"{settings.FRONTEND_URL}/share/{token}"
     subject = f"{owner_name} shared a task with you"
     html = _build_html(owner_name, task_title, link)
 
     try:
-        if settings.RESEND_API_KEY:
-            resend.api_key = settings.RESEND_API_KEY
-            params: resend.Emails.SendParams = {
-                "from": settings.MAIL_FROM or "onboarding@resend.dev",
-                "to": [recipient],
-                "subject": subject,
-                "html": html,
-            }
-            result = await asyncio.to_thread(resend.Emails.send, params)
-            logger.info("Resend result: %s", result)
-        else:
-            logger.info("Sending via SMTP to %s", recipient)
-            await asyncio.to_thread(_send_via_smtp, recipient, subject, html)
-            logger.info("SMTP send successful")
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.post(
+                "https://api.brevo.com/v3/smtp/email",
+                headers={
+                    "api-key": settings.BREVO_API_KEY,
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "sender": {"name": "TaskFlow", "email": settings.MAIL_FROM},
+                    "to": [{"email": recipient}],
+                    "subject": subject,
+                    "htmlContent": html,
+                },
+            )
+            response.raise_for_status()
+            logger.info("Brevo email sent to %s, status %s", recipient, response.status_code)
     except Exception as e:
         logger.error("Email send failed: %s", e, exc_info=True)
