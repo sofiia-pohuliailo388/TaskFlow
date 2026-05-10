@@ -1,10 +1,13 @@
 import asyncio
+import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 import resend
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 def _build_html(owner_name: str, task_title: str, link: str) -> str:
@@ -33,14 +36,20 @@ async def send_share_email(recipient: str, task_title: str, token: str, owner_na
     subject = f"{owner_name} shared a task with you"
     html = _build_html(owner_name, task_title, link)
 
-    if settings.RESEND_API_KEY:
-        resend.api_key = settings.RESEND_API_KEY
-        params: resend.Emails.SendParams = {
-            "from": settings.MAIL_FROM or "onboarding@resend.dev",
-            "to": [recipient],
-            "subject": subject,
-            "html": html,
-        }
-        await asyncio.to_thread(resend.Emails.send, params)
-    else:
-        await asyncio.to_thread(_send_via_smtp, recipient, subject, html)
+    try:
+        if settings.RESEND_API_KEY:
+            resend.api_key = settings.RESEND_API_KEY
+            params: resend.Emails.SendParams = {
+                "from": settings.MAIL_FROM or "onboarding@resend.dev",
+                "to": [recipient],
+                "subject": subject,
+                "html": html,
+            }
+            result = await asyncio.to_thread(resend.Emails.send, params)
+            logger.info("Resend result: %s", result)
+        else:
+            logger.info("Sending via SMTP to %s", recipient)
+            await asyncio.to_thread(_send_via_smtp, recipient, subject, html)
+            logger.info("SMTP send successful")
+    except Exception as e:
+        logger.error("Email send failed: %s", e, exc_info=True)
