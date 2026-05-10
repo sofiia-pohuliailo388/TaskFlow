@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
 
     GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    GMAIL_REFRESH_TOKEN: str = ""
 
     SMTP_HOST: str = "smtp.gmail.com"
     SMTP_PORT: int = 587
