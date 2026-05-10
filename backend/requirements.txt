@@ -12,7 +12,6 @@ email-validator==2.3.0
 python-multipart==0.0.27
 resend==2.10.0
 google-genai==2.0.1
-google-auth==2.40.0
 requests==2.32.3
 httpx==0.28.1
 
