@@ -49,8 +49,8 @@ async def login(payload: UserLogin, db: AsyncSession = Depends(get_db)) -> Login
     )
 
 
-@router.post("/google", response_model=TokenPair)
-async def google_auth(token: str = Body(..., embed=True), db: AsyncSession = Depends(get_db)) -> TokenPair:
+@router.post("/google", response_model=LoginResponse)
+async def google_auth(token: str = Body(..., embed=True), db: AsyncSession = Depends(get_db)) -> LoginResponse:
     """Authenticate via Google ID token and return a JWT token pair."""
     try:
         loop = asyncio.get_event_loop()
@@ -75,9 +75,11 @@ async def google_auth(token: str = Body(..., embed=True), db: AsyncSession = Dep
         await db.commit()
         await db.refresh(user)
 
-    return TokenPair(
+    return LoginResponse(
         access_token=create_access_token(user.id),
         refresh_token=create_refresh_token(user.id),
+        name=user.name,
+        email=user.email,
     )
 
 

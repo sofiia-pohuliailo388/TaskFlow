@@ -50,10 +50,7 @@ export function AuthProvider({ children }) {
     const tokens = await apiGoogleAuth(idToken)
     localStorage.setItem('access_token', tokens.access_token)
     localStorage.setItem('refresh_token', tokens.refresh_token)
-    // Decode name from JWT payload (sub = user_id); we don't have email here,
-    // so store a placeholder — the backend verified it already
-    const payload = JSON.parse(atob(tokens.access_token.split('.')[1]))
-    const userData = { id: payload.sub }
+    const userData = { email: tokens.email, name: tokens.name }
     localStorage.setItem('user', JSON.stringify(userData))
     setUser(userData)
     return tokens
