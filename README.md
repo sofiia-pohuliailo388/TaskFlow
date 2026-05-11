@@ -9,7 +9,7 @@ A full-stack task management app with a list view, Kanban board, subtasks, and l
 |-------|-----------|
 | Backend | FastAPI · SQLAlchemy (async) · PostgreSQL · Alembic · JWT auth |
 | Frontend | React 18 · Vite · React Router · CSS Modules |
-| Email | Resend API |
+| Email | Gmail API |
 | File storage | Cloudinary |
 | Auth | JWT + Google OAuth 2.0 |
 | Deploy | Railway (backend + DB) |
